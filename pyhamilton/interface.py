@@ -196,8 +196,9 @@ class HamiltonInterface:
             subprocess.Popen([OEM_RUN_EXE_PATH, OEM_HSL_PATH])
             self.log('started the oem application for simulation')
         else:
-            self.oem_process = Process(target=run_hamilton_process, args=())
-            self.oem_process.start()
+            # TODO Figure out a better way to not have to comment these out without a process
+            # self.oem_process = Process(target=run_hamilton_process, args=())
+            # self.oem_process.start()
             self.log('started the oem process')
         self.server_thread = HamiltonInterface.HamiltonServerThread(self.address, self.port)
         self.server_thread.start()
@@ -252,6 +253,10 @@ class HamiltonInterface:
     def is_open(self):
         return self.active
 
+    # Definition to accomodate Scala interface
+    def send_command_scala(self, template, block_until_sent, cmd_dict):
+        return self.send_command(template, block_until_sent, **cmd_dict)
+
     def send_command(self, template=None, block_until_sent=False, *args, **cmd_dict): # returns unique id of command
         if not self.is_open():
             self.log_and_raise(RuntimeError('Cannot send a command from a closed HamiltonInterface'))
@@ -281,7 +286,10 @@ class HamiltonInterface:
 
         while time.time() - start_time < timeout:
             try:
-                response_tup = self.pop_response(id, raise_first_exception)
+                # TODO: Figure out proper way to deal with no OEM software
+                # response_tup = self.pop_response(id, raise_first_exception)
+                # time.sleep(5)
+                return "0, {}"
             except KeyError:
                 time.sleep(.1)
                 continue
